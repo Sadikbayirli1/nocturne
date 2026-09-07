@@ -89,7 +89,9 @@ function authPopupPlugin(): Plugin {
           );
           const proto = String(
             req.headers["x-forwarded-proto"] ??
-              ((req.socket as { encrypted?: boolean } | undefined)?.encrypted ? "https" : "http"),
+              ((req.socket as { encrypted?: boolean } | undefined)?.encrypted
+                ? "https"
+                : "http"),
           );
           const requestHeaders = new Headers();
           for (const [key, value] of Object.entries(req.headers)) {
@@ -109,7 +111,9 @@ function authPopupPlugin(): Plugin {
             headers: requestHeaders,
           });
 
-          const mod = (await server.ssrLoadModule("/src/lib/auth/popup.server.ts")) as {
+          const mod = (await server.ssrLoadModule(
+            "/src/lib/auth/popup.server.ts",
+          )) as {
             handleAuthPopupRequest: (req: Request) => Promise<Response>;
           };
           const response = await mod.handleAuthPopupRequest(request);
@@ -157,8 +161,8 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
-    ssr: {
-    noExternal: ['tslib', /@radix-ui\/.*/],
+  ssr: {
+    noExternal: ["tslib", /@radix-ui\/.*/],
   },
   plugins: [
     pgliteBootstrapPlugin(),
@@ -174,10 +178,10 @@ export default defineConfig(({ command, isPreview }) => ({
       ? [
           nitro({
             preset: "vercel",
-            // Auto-registers server/middleware/* (the PWA install page +
-            // manifest + head-tag middleware). Nitro v3 defaults serverDir to
-            // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            externals: {
+              inline: ["tslib"],
+            },
           }),
         ]
       : []),
